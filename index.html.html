@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mission: Future You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Karla:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#eef1fb;
+    --bg-elev:#ffffff;
+    --bg-panel:#f7f8fd;
+    --ink:#182042;
+    --ink-dim:#5b6390;
+    --line: rgba(24,32,66,0.14);
+    --accent:#e06a1f;
+    --accent-ink:#ffffff;
+    --accent2:#0e9c7e;
+    --accent2-ink:#ffffff;
+    --danger:#c23b5a;
+    --font-display:'Baloo 2', system-ui, sans-serif;
+    --font-body:'Karla', system-ui, sans-serif;
+    --font-mono:'Space Mono', 'Courier New', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#0a0e24;
+      --bg-elev:#131a3a;
+      --bg-panel:#171f49;
+      --ink:#eef1fc;
+      --ink-dim:#9aa3c9;
+      --line: rgba(255,255,255,0.14);
+      --accent:#ffb84d;
+      --accent-ink:#1a1206;
+      --accent2:#5ee6c4;
+      --accent2-ink:#062822;
+      --danger:#ff8fa8;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#0a0e24;
+    --bg-elev:#131a3a;
+    --bg-panel:#171f49;
+    --ink:#eef1fc;
+    --ink-dim:#9aa3c9;
+    --line: rgba(255,255,255,0.14);
+    --accent:#ffb84d;
+    --accent-ink:#1a1206;
+    --accent2:#5ee6c4;
+    --accent2-ink:#062822;
+    --danger:#ff8fa8;
+  }
+
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.5;
+    padding-inline:16px;
+    padding-block:0 28px;
+  }
+  h1,h2,h3{ font-family:var(--font-display); text-wrap:balance; margin:0; }
+  a{ color:var(--accent2); }
+  .wrap{ max-width:920px; margin-inline:auto; }
+
+  /* ---------- Starfield background on the hero ---------- */
+  .stars{
+    position:absolute; inset:0; overflow:hidden; border-radius:inherit; pointer-events:none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, #fff8 50%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 80% 30%, #fff9 50%, transparent 60%),
+      radial-gradient(1px 1px at 40% 70%, #fff7 50%, transparent 60%),
+      radial-gradient(1px 1px at 60% 15%, #fff6 50%, transparent 60%),
+      radial-gradient(2px 2px at 25% 85%, #fff9 50%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 90% 80%, #fff7 50%, transparent 60%),
+      radial-gradient(1px 1px at 70% 55%, #fff6 50%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 50% 40%, #fff8 50%, transparent 60%);
+    opacity:0.7;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:env(safe-area-inset-top, 0px); z-index:20;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding-block:10px; margin-inline:-16px; padding-inline:16px;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .brand{ font-family:var(--font-display); font-weight:800; font-size:1.05rem; white-space:nowrap; }
+  .save-pill{
+    margin-left:auto; font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.02em;
+    padding:5px 10px; border-radius:999px; background:var(--bg-panel); border:1px solid var(--line);
+    color:var(--ink-dim); transition:opacity .3s ease;
+  }
+  .save-pill.saved{ color:var(--accent2); border-color:var(--accent2); }
+
+  /* ---------- Progress track ---------- */
+  .track{
+    display:flex; flex-wrap:wrap; gap:6px; justify-content:center; align-items:center;
+    padding:14px 8px 4px;
+  }
+  .node{
+    display:flex; flex-direction:column; align-items:center; gap:4px; width:78px;
+  }
+  .node .dot{
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--bg-panel); border:2px solid var(--line); font-size:1.15rem;
+    transition: transform .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .node.done .dot{ border-color:var(--accent2); background:color-mix(in srgb, var(--accent2) 18%, var(--bg-panel)); }
+  .node.current .dot{ border-color:var(--accent); transform:scale(1.12); }
+  .node .label{ font-size:0.62rem; text-align:center; color:var(--ink-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.03em; }
+  @media (prefers-reduced-motion: reduce){ .node .dot{ transition:none; } }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; margin-top:16px; border-radius:20px; overflow:hidden;
+    background: radial-gradient(120% 140% at 20% -10%, #2a3577 0%, #131a3a 55%, #0a0e24 100%);
+    padding:28px 22px 24px; color:#eef1fc;
+    border:1px solid var(--line);
+  }
+  :root:not([data-theme="dark"]) .hero{
+    background: radial-gradient(120% 140% at 20% -10%, #3a4590 0%, #1c2456 55%, #0a0e24 100%);
+  }
+  .hero-inner{ position:relative; z-index:1; }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:#c9d0ff; margin-bottom:6px; display:block;
+  }
+  .hero h1{ font-size:clamp(1.7rem, 5vw, 2.5rem); color:#fff; }
+  .hero p.sub{ color:#c9d0ff; max-width:60ch; margin-top:8px; font-size:0.98rem; }
+  .callsign-row{
+    display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;
+  }
+  .field-inline{ display:flex; flex-direction:column; gap:4px; flex:1; min-width:160px; }
+  .field-inline label{ font-size:0.72rem; color:#c9d0ff; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; }
+  .field-inline input{
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.28); color:#fff;
+    border-radius:10px; padding:9px 11px; font-family:var(--font-body); font-size:0.95rem;
+  }
+  .field-inline input::placeholder{ color:#8f97cc; }
+  .stardate{ font-family:var(--font-mono); font-size:0.78rem; color:#9aa3c9; margin-top:14px; }
+
+  details.readme{
+    margin-top:14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.2);
+    border-radius:12px; padding:10px 14px;
+  }
+  details.readme summary{ cursor:pointer; font-weight:700; font-family:var(--font-display); color:#fff; }
+  details.readme .readme-body{ margin-top:8px; color:#dfe2ff; font-size:0.9rem; }
+  details.readme .readme-body ul{ margin:6px 0 0; padding-left:1.1em; }
+
+  /* ---------- Panels ---------- */
+  .panel{
+    margin-top:20px; background:var(--bg-elev); border:1px solid var(--line); border-radius:18px;
+    padding:22px; page-break-inside: avoid;
+  }
+  .panel-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  .panel-badge{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; background:var(--bg-panel); border:1px solid var(--line); flex-shrink:0;
+  }
+  .panel-title{ flex:1; min-width:180px; }
+  .panel-title h2{ font-size:1.35rem; }
+  .panel-title .kicker{ font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); }
+  .panel-intro{ color:var(--ink-dim); font-size:0.92rem; max-width:65ch; margin:10px 0 18px; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:560px){ .grid2{ grid-template-columns:1fr; } }
+
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+  .field label{ font-weight:700; font-size:0.88rem; }
+  .field .hint{ font-size:0.78rem; color:var(--ink-dim); font-weight:400; }
+  input[type="text"], input[type="number"], input[type="date"], select, textarea{
+    font-family:var(--font-body); font-size:0.95rem; color:var(--ink); background:var(--bg-panel);
+    border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; width:100%;
+  }
+  textarea{ resize:vertical; min-height:64px; }
+  input:focus, select:focus, textarea:focus, button:focus-visible{
+    outline:2px solid var(--accent); outline-offset:1px;
+  }
+
+  .subblock{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px;
+  }
+  .subblock h3{ font-size:1rem; margin-bottom:10px; }
+  .subblock .sub-note{ font-size:0.85rem; color:var(--ink-dim); margin:-4px 0 12px; }
+
+  /* Resource library */
+  .resource-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; }
+  @media (max-width:560px){ .resource-grid{ grid-template-columns:1fr; } }
+  .resource-card{
+    display:flex; gap:10px; align-items:flex-start; text-decoration:none; color:var(--ink);
+    background:var(--bg-elev); border:1.5px solid var(--line); border-radius:12px; padding:12px 14px;
+  }
+  .resource-card:hover{ border-color:var(--accent); }
+  .resource-card .ric{ font-size:1.25rem; flex-shrink:0; line-height:1.2; }
+  .resource-card .rtext{ min-width:0; }
+  .resource-card .rname{ font-weight:700; font-size:0.92rem; display:flex; align-items:center; gap:5px; }
+  .resource-card .rname .ext{ font-size:0.7rem; color:var(--ink-dim); }
+  .resource-card .rdesc{ font-size:0.8rem; color:var(--ink-dim); margin-top:2px; }
+  .resource-tip{
+    display:flex; gap:10px; align-items:flex-start; background:var(--bg-panel); border:1px dashed var(--line);
+    border-radius:12px; padding:12px 14px; margin-top:4px; font-size:0.88rem; color:var(--ink-dim);
+  }
+
+  .range-row{ display:flex; align-items:center; gap:12px; }
+  .range-row input[type="range"]{ flex:1; accent-color:var(--accent); }
+  .range-word{ font-family:var(--font-mono); font-size:0.78rem; min-width:112px; text-align:right; color:var(--accent2); font-weight:700; }
+
+  .chip-group{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .chip{
+    font-family:var(--font-body); font-size:0.85rem; padding:7px 13px; border-radius:999px;
+    background:var(--bg-elev); border:1.5px solid var(--line); color:var(--ink); cursor:pointer;
+  }
+  .chip.active{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700; }
+
+  .checklist-item{ display:flex; gap:10px; align-items:flex-start; margin-bottom:12px; }
+  .checklist-item input[type="checkbox"]{ width:20px; height:20px; margin-top:2px; accent-color:var(--accent2); flex-shrink:0; }
+  .checklist-item .cl-body{ flex:1; }
+  .checklist-item .cl-body > label{ font-weight:700; display:block; margin-bottom:6px; }
+
+  .btn{
+    font-family:var(--font-display); font-weight:700; font-size:0.92rem; letter-spacing:0.01em;
+    padding:10px 18px; border-radius:999px; border:1.5px solid var(--line); background:var(--bg-panel);
+    color:var(--ink); cursor:pointer;
+  }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .btn.done{ background:var(--accent2); border-color:var(--accent2); color:var(--accent2-ink); }
+  .btn.ghost{ background:transparent; }
+  .btn.small{ padding:6px 12px; font-size:0.8rem; }
+  .btn.danger-outline{ border-color:var(--danger); color:var(--danger); background:transparent; }
+
+  .complete-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:6px; }
+  .complete-note{ font-size:0.85rem; color:var(--ink-dim); }
+
+  /* Destination cards */
+  #destinationList{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px; }
+  @media (max-width:700px){ #destinationList{ grid-template-columns:1fr; } }
+  .dest-card{
+    background:var(--bg-panel); border:1.5px solid var(--line); border-radius:14px; padding:16px; position:relative;
+  }
+  .dest-card .dest-top{ display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+  .dest-card .dest-top input{ font-family:var(--font-display); font-weight:700; font-size:1.02rem; }
+  .dest-counter{ font-family:var(--font-mono); font-size:0.8rem; color:var(--ink-dim); margin-bottom:10px; }
+  .dest-counter.met{ color:var(--accent2); }
+
+  /* Calendar */
+  .addevent{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; background:var(--bg-panel);
+    border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:16px;
+  }
+  .addevent .field{ margin-bottom:0; flex:1; min-width:140px; }
+  #eventList{ display:flex; flex-direction:column; gap:10px; }
+  .event-row{
+    display:flex; align-items:center; gap:12px; background:var(--bg-panel); border:1px solid var(--line);
+    border-radius:12px; padding:10px 14px; flex-wrap:wrap;
+  }
+  .event-cat{ font-size:0.72rem; font-weight:800; font-family:var(--font-mono); padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:0.03em; white-space:nowrap; }
+  .cat-test{ background:#ffd9a8; color:#7a3e00; }
+  .cat-app{ background:#b9f3e4; color:#04593f; }
+  .cat-aid{ background:#ffd0e0; color:#7a0035; }
+  .cat-interview{ background:#dcd6ff; color:#33268f; }
+  .cat-other{ background:#e2e5ee; color:#33384a; }
+  .event-name{ flex:1; min-width:140px; font-weight:700; }
+  .event-date{ font-family:var(--font-mono); font-size:0.85rem; color:var(--ink-dim); white-space:nowrap; }
+  .event-countdown{ font-family:var(--font-mono); font-size:0.78rem; font-weight:700; white-space:nowrap; color:var(--accent); }
+  .event-countdown.past{ color:var(--ink-dim); }
+  .empty-note{ color:var(--ink-dim); font-size:0.88rem; font-style:italic; padding:8px 2px; }
+
+  /* Commander / finale */
+  .badge-shelf{ display:flex; gap:14px; flex-wrap:wrap; margin:16px 0; }
+  .badge-item{ display:flex; flex-direction:column; align-items:center; gap:6px; width:90px; opacity:0.35; filter:grayscale(1); }
+  .badge-item.earned{ opacity:1; filter:none; }
+  .badge-item .ic{ width:52px; height:52px; border-radius:14px; background:var(--bg-panel); border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:1.6rem; }
+  .badge-item .nm{ font-size:0.68rem; text-align:center; font-weight:700; color:var(--ink-dim); }
+
+  footer.pagefoot{ text-align:center; color:var(--ink-dim); font-size:0.8rem; margin-top:26px; }
+
+  @media print{
+    .btn, .addevent button, .chip{ display:none !important; }
+    body{ background:#fff; color:#000; padding:0; }
+    .panel, .hero{ break-inside:avoid; border:1px solid #ccc; }
+    .stars{ display:none; }
+    a[href]:after{ content:""; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">🛰️ Mission: Future You</div>
+    <div class="save-pill" id="saveIndicator">not saved yet</div>
+  </div>
+
+  <div class="track" id="progressTrack" aria-label="Mission progress">
+    <div class="node" data-node="start"><div class="dot">🚀</div><div class="label">Launch</div></div>
+    <div class="node" data-node="career"><div class="dot">🔭</div><div class="label">Career Scan</div></div>
+    <div class="node" data-node="flight"><div class="dot">🧭</div><div class="label">Flight Plan</div></div>
+    <div class="node" data-node="destination"><div class="dot">🪐</div><div class="label">Destinations</div></div>
+    <div class="node" data-node="calendar"><div class="dot">⏱️</div><div class="label">Countdown</div></div>
+    <div class="node" data-node="commander"><div class="dot">🏅</div><div class="label">Commander</div></div>
+  </div>
+
+  <section class="hero">
+    <div class="stars"></div>
+    <div class="hero-inner">
+      <span class="eyebrow">ICEV · Career Readiness · Flight Log</span>
+      <h1>Mission: Future You</h1>
+      <p class="sub">Every astronaut needs a flight plan before launch day. This log is yours — fill it in as you research your future career and the schools that could get you there. It saves itself right in this browser as you go.</p>
+
+      <div class="callsign-row">
+        <div class="field-inline">
+          <label for="studentName">Astronaut name</label>
+          <input type="text" id="studentName" data-key="student.name" placeholder="Your name">
+        </div>
+        <div class="field-inline">
+          <label for="studentPeriod">Class period</label>
+          <input type="text" id="studentPeriod" data-key="student.period" placeholder="e.g. Period 3 ICEV">
+        </div>
+      </div>
+      <div class="stardate" id="stardate"></div>
+
+      <details class="readme">
+        <summary>📋 How this journal works — read me first</summary>
+        <div class="readme-body">
+          <p>This is a digital version of your Preparatory Journal. Work through the four mission phases below in any order your teacher assigns.</p>
+          <ul>
+            <li>Your answers autosave in <em>this</em> browser on <em>this</em> device — use the same Chromebook each class period.</li>
+            <li>Hit <strong>Mark Phase Complete</strong> at the bottom of a phase to earn its badge and move your rocket forward.</li>
+            <li>When it's time to turn this in, use the <strong>🖨️ Print / Save as PDF</strong> button in the final panel.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- MISSION RESOURCE LIBRARY -->
+  <section class="panel" id="panel-resources">
+    <div class="panel-head">
+      <div class="panel-badge">📡</div>
+      <div class="panel-title">
+        <div class="kicker">Ground Control</div>
+        <h2>Mission Resource Library</h2>
+      </div>
+    </div>
+    <p class="panel-intro">Trusted, free sites to help you complete every phase of this mission. Each link opens in a new tab so you won't lose your place here.</p>
+
+    <div class="subblock">
+      <h3>🔭 Explore Careers</h3>
+      <div class="resource-grid">
+        <a class="resource-card" href="https://www.mynextmove.org/" target="_blank" rel="noopener">
+          <span class="ric">🧭</span>
+          <span class="rtext"><span class="rname">My Next Move <span class="ext">↗</span></span><span class="rdesc">Take a free interest quiz and browse careers by industry.</span></span>
+        </a>
+        <a class="resource-card" href="https://www.careeronestop.org/" target="_blank" rel="noopener">
+          <span class="ric">💼</span>
+          <span class="rtext"><span class="rname">CareerOneStop <span class="ext">↗</span></span><span class="rdesc">U.S. Dept. of Labor site with career videos, pay, and local job openings.</span></span>
+        </a>
+        <a class="resource-card" href="https://www.bls.gov/ooh/" target="_blank" rel="noopener">
+          <span class="ric">📊</span>
+          <span class="rtext"><span class="rname">Occupational Outlook Handbook <span class="ext">↗</span></span><span class="rdesc">Official government data on education needed, pay, and job outlook.</span></span>
+        </a>
+        <a class="resource-card" href="https://www.onetonline.org/" target="_blank" rel="noopener">
+          <span class="ric">🗂️</span>
+          <span class="rtext"><span class="rname">O*NET OnLine <span class="ext">↗</span></span><span class="rdesc">Detailed profiles of the skills and tasks used in specific jobs.</span></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>🪐 Find &amp; Compare Colleges</h3>
+      <div class="resource-grid">
+        <a class="resource-card" href="https://bigfuture.collegeboard.org/" target="_blank" rel="noopener">
+          <span class="ric">🎓</span>
+          <span class="rtext"><span class="rname">BigFuture <span class="ext">↗</span></span><span class="rdesc">Search colleges by major, size, location, and cost.</span></span>
+        </a>
+        <a class="resource-card" href="https://nces.ed.gov/collegenavigator/" target="_blank" rel="noopener">
+          <span class="ric">🏛️</span>
+          <span class="rtext"><span class="rname">College Navigator <span class="ext">↗</span></span><span class="rdesc">Official U.S. Dept. of Education database of every college.</span></span>
+        </a>
+        <a class="resource-card" href="https://www.niche.com/colleges/" target="_blank" rel="noopener">
+          <span class="ric">⭐</span>
+          <span class="rtext"><span class="rname">Niche <span class="ext">↗</span></span><span class="rdesc">Student reviews and rankings for campus life, dorms, and more.</span></span>
+        </a>
+        <a class="resource-card" href="https://www.petersons.com/" target="_blank" rel="noopener">
+          <span class="ric">📘</span>
+          <span class="rtext"><span class="rname">Peterson's <span class="ext">↗</span></span><span class="rdesc">College profiles, virtual tours, and test-prep resources.</span></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>💵 Pay for College</h3>
+      <div class="resource-grid">
+        <a class="resource-card" href="https://studentaid.gov/" target="_blank" rel="noopener">
+          <span class="ric">🏦</span>
+          <span class="rtext"><span class="rname">Federal Student Aid <span class="ext">↗</span></span><span class="rdesc">Where families file the FAFSA and learn about grants, loans, and work-study.</span></span>
+        </a>
+        <a class="resource-card" href="https://bigfuture.collegeboard.org/pay-for-college/scholarship-search" target="_blank" rel="noopener">
+          <span class="ric">🏅</span>
+          <span class="rtext"><span class="rname">BigFuture Scholarship Search <span class="ext">↗</span></span><span class="rdesc">Free tool to find scholarships you may qualify for.</span></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>🗓️ Testing &amp; Deadlines</h3>
+      <div class="resource-grid">
+        <a class="resource-card" href="https://www.collegeboard.org/" target="_blank" rel="noopener">
+          <span class="ric">📝</span>
+          <span class="rtext"><span class="rname">College Board (SAT) <span class="ext">↗</span></span><span class="rdesc">SAT registration, test dates, and free practice.</span></span>
+        </a>
+        <a class="resource-card" href="https://www.act.org/" target="_blank" rel="noopener">
+          <span class="ric">✏️</span>
+          <span class="rtext"><span class="rname">ACT <span class="ext">↗</span></span><span class="rdesc">ACT registration and test dates.</span></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="resource-tip">💡 <span>Don't forget your best local resources: your ICEV teacher, your school counselor, and your school or public library often have career and college info you won't find online.</span></div>
+  </section>
+
+  <!-- PHASE 1: CAREER SCAN -->
+  <section class="panel" id="panel-career">
+    <div class="panel-head">
+      <div class="panel-badge">🔭</div>
+      <div class="panel-title">
+        <div class="kicker">Phase 1 of 4</div>
+        <h2>Career Scan</h2>
+      </div>
+    </div>
+    <p class="panel-intro">Every mission needs a destination. Research the career field you're aiming for, and how much training it really takes to get hired — not just the legal minimum.</p>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="careerField">Career field you're exploring</label>
+        <input type="text" id="careerField" data-key="career.field" placeholder="e.g. Registered Nurse, Video Game Designer">
+      </div>
+      <div class="field">
+        <label for="minEducation">Minimum education legally required</label>
+        <select id="minEducation" data-key="career.minEducation">
+          <option value="">Choose one…</option>
+          <option>High School Diploma / GED</option>
+          <option>Certificate or License (under 2 years)</option>
+          <option>Associate Degree (2 years)</option>
+          <option>Bachelor's Degree (4 years)</option>
+          <option>Master's Degree</option>
+          <option>Doctoral or Professional Degree</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="competitiveEducation">Education level to actually be <em>competitive</em> in your area</label>
+      <span class="hint">Even if a job only requires an associate degree, could you actually get hired near home with just that?</span>
+      <select id="competitiveEducation" data-key="career.competitiveEducation">
+        <option value="">Choose one…</option>
+        <option>High School Diploma / GED</option>
+        <option>Certificate or License (under 2 years)</option>
+        <option>Associate Degree (2 years)</option>
+        <option>Bachelor's Degree (4 years)</option>
+        <option>Master's Degree</option>
+        <option>Doctoral or Professional Degree</option>
+        <option>Not sure yet</option>
+      </select>
+    </div>
+
+    <div class="subblock">
+      <h3>🛰️ Ground Control Research Log</h3>
+      <div class="checklist-item">
+        <input type="checkbox" id="chkInterview" data-key="career.didInterview">
+        <div class="cl-body">
+          <label for="interviewNotes">I talked to a real professional in this field</label>
+          <textarea id="interviewNotes" data-key="career.interviewNotes" placeholder="Who did you talk to, and what did they say about getting hired?"></textarea>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="chkJobs" data-key="career.didJobs">
+        <div class="cl-body">
+          <label for="jobNotes">I looked up real local job openings in this field</label>
+          <textarea id="jobNotes" data-key="career.jobNotes" placeholder="What education/experience did the listings ask for?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="careerPlan">Your target education plan</label>
+      <span class="hint">Based on your research, what's your plan to become competitive in this field?</span>
+      <textarea id="careerPlan" data-key="career.plan" placeholder="e.g. I plan to earn a Bachelor's degree in Nursing because most hospitals near me want a BSN, not just an associate degree."></textarea>
+    </div>
+
+    <div class="complete-row">
+      <button class="btn" data-complete="career">Mark Career Scan Complete</button>
+      <span class="complete-note" id="note-career"></span>
+    </div>
+  </section>
+
+  <!-- PHASE 2: FLIGHT PLAN -->
+  <section class="panel" id="panel-flight">
+    <div class="panel-head">
+      <div class="panel-badge">🧭</div>
+      <div class="panel-title">
+        <div class="kicker">Phase 2 of 4</div>
+        <h2>Flight Plan</h2>
+      </div>
+    </div>
+    <p class="panel-intro">Before you pick a school, figure out what you actually want. Rate how much each thing matters to you, and jot down your preferences.</p>
+
+    <div class="field">
+      <label for="flightMajor">Career / major you'd study for</label>
+      <input type="text" id="flightMajor" data-key="flight.major" placeholder="e.g. Nursing, Game Design, Welding">
+    </div>
+
+    <div class="subblock">
+      <h3>📍 Location</h3>
+      <div class="field" style="margin-bottom:10px;">
+        <label>How important is location to you?</label>
+        <div class="range-row">
+          <input type="range" min="1" max="5" step="1" id="rangeLocation" data-key="flight.locationImportance" data-word="wordLocation">
+          <span class="range-word" id="wordLocation"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="distanceOk">How far from home is okay?</label>
+          <input type="text" id="distanceOk" data-key="flight.distanceOk" placeholder='e.g. "Under 2 hours" or "Anywhere in Texas"'>
+        </div>
+        <div class="field">
+          <label>Urban or rural setting?</label>
+          <div class="chip-group" data-group="flight.setting" data-single="true">
+            <button type="button" class="chip" data-value="Urban">Urban</button>
+            <button type="button" class="chip" data-value="Suburban">Suburban</button>
+            <button type="button" class="chip" data-value="Rural">Rural</button>
+            <button type="button" class="chip" data-value="No preference">No preference</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>🏫 School size</h3>
+      <div class="field" style="margin-bottom:10px;">
+        <label>How important is school size to you?</label>
+        <div class="range-row">
+          <input type="range" min="1" max="5" step="1" id="rangeSize" data-key="flight.sizeImportance" data-word="wordSize">
+          <span class="range-word" id="wordSize"></span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Preferred size</label>
+        <div class="chip-group" data-group="flight.sizePref" data-single="true">
+          <button type="button" class="chip" data-value="Small (under 2,500 students)">Small (under 2,500)</button>
+          <button type="button" class="chip" data-value="Mid-size (2,500–15,000 students)">Mid-size (2,500–15,000)</button>
+          <button type="button" class="chip" data-value="Large (15,000+ students)">Large (15,000+)</button>
+          <button type="button" class="chip" data-value="No preference">No preference</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>💵 Cost</h3>
+      <div class="field" style="margin-bottom:10px;">
+        <label>How important is cost to you?</label>
+        <div class="range-row">
+          <input type="range" min="1" max="5" step="1" id="rangeCost" data-key="flight.costImportance" data-word="wordCost">
+          <span class="range-word" id="wordCost"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="budget">What's affordable for your family, per year?</label>
+          <input type="text" id="budget" data-key="flight.budget" placeholder="e.g. Under $10,000/year">
+        </div>
+        <div class="field">
+          <label>Will you need financial aid?</label>
+          <div class="chip-group" data-group="flight.financialAid" data-single="true">
+            <button type="button" class="chip" data-value="Yes">Yes</button>
+            <button type="button" class="chip" data-value="Maybe">Maybe</button>
+            <button type="button" class="chip" data-value="No">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>🛎️ Amenities</h3>
+      <div class="field" style="margin-bottom:10px;">
+        <label>How important are campus amenities to you?</label>
+        <div class="range-row">
+          <input type="range" min="1" max="5" step="1" id="rangeAmenities" data-key="flight.amenitiesImportance" data-word="wordAmenities">
+          <span class="range-word" id="wordAmenities"></span>
+        </div>
+      </div>
+      <label>Which ones matter most? (pick any)</label>
+      <div class="chip-group" data-group="flight.amenities">
+        <button type="button" class="chip" data-value="Dorms &amp; Housing">Dorms &amp; Housing</button>
+        <button type="button" class="chip" data-value="Dining Halls">Dining Halls</button>
+        <button type="button" class="chip" data-value="Gym / Rec Center">Gym / Rec Center</button>
+        <button type="button" class="chip" data-value="Health &amp; Counseling Center">Health &amp; Counseling Center</button>
+        <button type="button" class="chip" data-value="Tutoring Center">Tutoring Center</button>
+        <button type="button" class="chip" data-value="Career Center">Career Center</button>
+        <button type="button" class="chip" data-value="Study Abroad Office">Study Abroad Office</button>
+        <button type="button" class="chip" data-value="Library / Study Spaces">Library / Study Spaces</button>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label for="amenitiesOther">Anything else?</label>
+        <input type="text" id="amenitiesOther" data-key="flight.amenitiesOther" placeholder="Optional">
+      </div>
+    </div>
+
+    <div class="subblock">
+      <h3>🎉 Activities & organizations</h3>
+      <div class="field" style="margin-bottom:10px;">
+        <label>How important are activities/clubs to you?</label>
+        <div class="range-row">
+          <input type="range" min="1" max="5" step="1" id="rangeActivities" data-key="flight.activitiesImportance" data-word="wordActivities">
+          <span class="range-word" id="wordActivities"></span>
+        </div>
+      </div>
+      <label>Which types interest you? (pick any)</label>
+      <div class="chip-group" data-group="flight.activities">
+        <button type="button" class="chip" data-value="Sports &amp; Athletics">Sports &amp; Athletics</button>
+        <button type="button" class="chip" data-value="Band / Choir / Theater">Band / Choir / Theater</button>
+        <button type="button" class="chip" data-value="Student Government">Student Government</button>
+        <button type="button" class="chip" data-value="Clubs for My Major">Clubs for My Major</button>
+        <button type="button" class="chip" data-value="Greek Life">Greek Life</button>
+        <button type="button" class="chip" data-value="Volunteer Groups">Volunteer Groups</button>
+        <button type="button" class="chip" data-value="Cultural / Faith Groups">Cultural / Faith Groups</button>
+        <button type="button" class="chip" data-value="Esports / Gaming Club">Esports / Gaming Club</button>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label for="activitiesOther">Anything else?</label>
+        <input type="text" id="activitiesOther" data-key="flight.activitiesOther" placeholder="Optional">
+      </div>
+    </div>
+
+    <div class="complete-row">
+      <button class="btn" data-complete="flight">Mark Flight Plan Complete</button>
+      <span class="complete-note" id="note-flight"></span>
+    </div>
+  </section>
+
+  <!-- PHASE 3: DESTINATION SEARCH -->
+  <section class="panel" id="panel-destination">
+    <div class="panel-head">
+      <div class="panel-badge">🪐</div>
+      <div class="panel-title">
+        <div class="kicker">Phase 3 of 4</div>
+        <h2>Destination Search</h2>
+      </div>
+    </div>
+    <p class="panel-intro">Scout at least four schools that could get you where you're going. For each one, note how it stacks up against your Flight Plan and what it takes to get in.</p>
+
+    <div class="dest-counter" id="destCounter"></div>
+    <div id="destinationList"></div>
+    <button class="btn ghost" id="addDestBtn" type="button">+ Add another destination</button>
+
+    <div class="complete-row" style="margin-top:18px;">
+      <button class="btn" data-complete="destination">Mark Destination Search Complete</button>
+      <span class="complete-note" id="note-destination"></span>
+    </div>
+  </section>
+
+  <!-- PHASE 4: COUNTDOWN CALENDAR -->
+  <section class="panel" id="panel-calendar">
+    <div class="panel-head">
+      <div class="panel-badge">⏱️</div>
+      <div class="panel-title">
+        <div class="kicker">Phase 4 of 4</div>
+        <h2>Countdown Calendar</h2>
+      </div>
+    </div>
+    <p class="panel-intro">Add every important date you find — test dates, application deadlines, financial aid deadlines, interviews, and anything else on your radar. They'll sort themselves into a countdown.</p>
+
+    <div class="addevent">
+      <div class="field">
+        <label for="eventName">Event</label>
+        <input type="text" id="eventName" placeholder="e.g. SAT test date">
+      </div>
+      <div class="field">
+        <label for="eventCategory">Category</label>
+        <select id="eventCategory">
+          <option value="test">Standardized Test</option>
+          <option value="app">Application Deadline</option>
+          <option value="aid">Financial Aid Deadline</option>
+          <option value="interview">Interview</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="eventDate">Date</label>
+        <input type="date" id="eventDate">
+      </div>
+      <button class="btn primary" id="addEventBtn" type="button">+ Add to countdown</button>
+    </div>
+
+    <div id="eventList"></div>
+
+    <div class="complete-row" style="margin-top:18px;">
+      <button class="btn" data-complete="calendar">Mark Countdown Calendar Complete</button>
+      <span class="complete-note" id="note-calendar"></span>
+    </div>
+  </section>
+
+  <!-- COMMANDER / FINALE -->
+  <section class="panel" id="panel-commander">
+    <div class="panel-head">
+      <div class="panel-badge">🏅</div>
+      <div class="panel-title">
+        <div class="kicker">Mission Status</div>
+        <h2>Flight Deck Summary</h2>
+      </div>
+    </div>
+    <p class="panel-intro">Collect all four badges to earn your Mission Commander wings. Print or save this journal as a PDF whenever your teacher is ready to collect it.</p>
+
+    <div class="badge-shelf" id="badgeShelf">
+      <div class="badge-item" data-badge="career"><div class="ic">🔭</div><div class="nm">Career Cadet</div></div>
+      <div class="badge-item" data-badge="flight"><div class="ic">🧭</div><div class="nm">Navigator</div></div>
+      <div class="badge-item" data-badge="destination"><div class="ic">🪐</div><div class="nm">Explorer</div></div>
+      <div class="badge-item" data-badge="calendar"><div class="ic">⏱️</div><div class="nm">Time Keeper</div></div>
+      <div class="badge-item" data-badge="commander"><div class="ic">🏅</div><div class="nm">Mission Commander</div></div>
+    </div>
+
+    <div class="complete-row">
+      <button class="btn primary" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+      <button class="btn danger-outline" id="resetBtn" type="button">Reset Mission</button>
+    </div>
+  </section>
+
+  <footer class="pagefoot">Preparatory Journal · ICEV Career Readiness · your answers autosave only in this browser</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = "missionFutureYou_v1";
+  var RANGE_WORDS = ["", "Not important", "A little important", "Important", "Very important", "Extremely important"];
+
+  function blankDestination(){
+    return { id: "d" + Date.now() + Math.random().toString(16).slice(2),
+      name:"", location:"", contact:"", fit:"", admission:"", deadline:"", aid:"" };
+  }
+
+  function defaultState(){
+    return {
+      student:{ name:"", period:"" },
+      progress:{ career:false, flight:false, destination:false, calendar:false },
+      career:{ field:"", minEducation:"", competitiveEducation:"", didInterview:false, interviewNotes:"", didJobs:false, jobNotes:"", plan:"" },
+      flight:{
+        major:"", locationImportance:3, distanceOk:"", setting:"",
+        sizeImportance:3, sizePref:"", costImportance:3, budget:"", financialAid:"",
+        amenitiesImportance:3, amenities:[], amenitiesOther:"",
+        activitiesImportance:3, activities:[], activitiesOther:""
+      },
+      destinations:[ blankDestination(), blankDestination(), blankDestination(), blankDestination() ],
+      events:[]
+    };
+  }
+
+  var state = defaultState();
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      var parsed = JSON.parse(raw);
+      var fresh = defaultState();
+      Object.keys(fresh).forEach(function(k){
+        if(parsed[k] !== undefined) fresh[k] = parsed[k];
+      });
+      if(!Array.isArray(fresh.destinations) || fresh.destinations.length === 0){
+        fresh.destinations = defaultState().destinations;
+      }
+      state = fresh;
+    }catch(e){ /* private mode or blocked storage: continue with defaults */ }
+  }
+
+  var saveTimer = null;
+  function saveState(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        flashSaved(true);
+      }catch(e){ flashSaved(false); }
+    }, 250);
+  }
+  function flashSaved(ok){
+    var el = document.getElementById("saveIndicator");
+    if(!el) return;
+    if(ok){
+      el.textContent = "🛰️ saved " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      el.classList.add("saved");
+    } else {
+      el.textContent = "⚠ storage unavailable";
+      el.classList.remove("saved");
+    }
+  }
+
+  function getPath(obj, path){
+    return path.split(".").reduce(function(o,k){ return (o||{})[k]; }, obj);
+  }
+  function setPath(obj, path, val){
+    var parts = path.split(".");
+    var last = parts.pop();
+    var target = parts.reduce(function(o,k){ return o[k]; }, obj);
+    target[last] = val;
+  }
+
+  /* ---------------- generic field binding ---------------- */
+  function bindSimpleFields(){
+    document.querySelectorAll("[data-key]").forEach(function(el){
+      var key = el.getAttribute("data-key");
+      if(el.type === "checkbox"){
+        el.checked = !!getPath(state, key);
+        el.addEventListener("change", function(){
+          setPath(state, key, el.checked); saveState();
+        });
+      } else if(el.type === "range"){
+        el.value = getPath(state, key) || 3;
+        updateRangeWord(el);
+        el.addEventListener("input", function(){
+          setPath(state, key, Number(el.value)); updateRangeWord(el); saveState();
+        });
+      } else {
+        el.value = getPath(state, key) || "";
+        var evt = (el.tagName === "SELECT") ? "change" : "input";
+        el.addEventListener(evt, function(){
+          setPath(state, key, el.value); saveState();
+        });
+      }
+    });
+  }
+  function updateRangeWord(el){
+    var wordId = el.getAttribute("data-word");
+    if(!wordId) return;
+    var span = document.getElementById(wordId);
+    if(span) span.textContent = RANGE_WORDS[Number(el.value)] || "";
+  }
+
+  /* ---------------- chip groups ---------------- */
+  function bindChips(){
+    document.querySelectorAll(".chip-group").forEach(function(group){
+      var key = group.getAttribute("data-group");
+      var single = group.getAttribute("data-single") === "true";
+      var current = getPath(state, key);
+      group.querySelectorAll(".chip").forEach(function(chip){
+        var val = chip.getAttribute("data-value");
+        if(single){
+          if(current === val) chip.classList.add("active");
+        } else {
+          if(Array.isArray(current) && current.indexOf(val) > -1) chip.classList.add("active");
+        }
+        chip.addEventListener("click", function(){
+          if(single){
+            var cur = getPath(state, key);
+            var next = (cur === val) ? "" : val;
+            setPath(state, key, next);
+            group.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("active"); });
+            if(next) chip.classList.add("active");
+          } else {
+            var arr = getPath(state, key) || [];
+            var idx = arr.indexOf(val);
+            if(idx > -1){ arr.splice(idx,1); chip.classList.remove("active"); }
+            else { arr.push(val); chip.classList.add("active"); }
+            setPath(state, key, arr);
+          }
+          saveState();
+        });
+      });
+    });
+  }
+
+  /* ---------------- destinations ---------------- */
+  var DEST_FIELDS = [
+    {key:"name", label:"Institution name", type:"text-title", ph:"e.g. State University"},
+    {key:"location", label:"City, State", type:"text", ph:"e.g. Austin, TX"},
+    {key:"contact", label:"Contact info", type:"text", ph:"Phone, email, or website"},
+    {key:"fit", label:"How it fits your Flight Plan", type:"textarea", ph:"Does it match what you said you wanted in Phase 2?"},
+    {key:"admission", label:"Admission requirements", type:"textarea", ph:"GPA, test scores, essays, etc."},
+    {key:"deadline", label:"Application deadline", type:"date-text", ph:"e.g. Dec 1, or Rolling"},
+    {key:"aid", label:"Financial aid info", type:"textarea", ph:"FAFSA deadline, scholarships, etc."}
+  ];
+
+  function renderDestinations(){
+    var list = document.getElementById("destinationList");
+    list.innerHTML = "";
+    state.destinations.forEach(function(dest, i){
+      var card = document.createElement("div");
+      card.className = "dest-card";
+      card.setAttribute("data-id", dest.id);
+
+      var top = document.createElement("div");
+      top.className = "dest-top";
+      var titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.placeholder = "Destination " + (i+1) + " — institution name";
+      titleInput.value = dest.name;
+      titleInput.addEventListener("input", function(){ dest.name = titleInput.value; saveState(); updateDestCounter(); });
+      var removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn small ghost";
+      removeBtn.textContent = "✕";
+      removeBtn.setAttribute("aria-label", "Remove this destination");
+      removeBtn.addEventListener("click", function(){
+        state.destinations = state.destinations.filter(function(d){ return d.id !== dest.id; });
+        saveState(); renderDestinations();
+      });
+      top.appendChild(titleInput);
+      top.appendChild(removeBtn);
+      card.appendChild(top);
+
+      DEST_FIELDS.filter(function(f){ return f.key !== "name"; }).forEach(function(f){
+        var field = document.createElement("div");
+        field.className = "field";
+        var label = document.createElement("label");
+        label.textContent = f.label;
+        field.appendChild(label);
+        var input;
+        if(f.type === "textarea"){
+          input = document.createElement("textarea");
+        } else {
+          input = document.createElement("input");
+          input.type = "text";
+        }
+        input.placeholder = f.ph;
+        input.value = dest[f.key] || "";
+        input.addEventListener("input", function(){ dest[f.key] = input.value; saveState(); });
+        field.appendChild(input);
+        card.appendChild(field);
+      });
+
+      list.appendChild(card);
+    });
+    updateDestCounter();
+  }
+  function updateDestCounter(){
+    var filled = state.destinations.filter(function(d){ return d.name && d.name.trim().length; }).length;
+    var el = document.getElementById("destCounter");
+    var met = filled >= 4;
+    el.textContent = (met ? "✅ " : "🛰️ ") + filled + " of 4 minimum destinations named";
+    el.classList.toggle("met", met);
+  }
+
+  /* ---------------- calendar events ---------------- */
+  var CAT_LABEL = { test:"Test", app:"Application", aid:"Financial Aid", interview:"Interview", other:"Other" };
+  var CAT_CLASS = { test:"cat-test", app:"cat-app", aid:"cat-aid", interview:"cat-interview", other:"cat-other" };
+
+  function renderEvents(){
+    var list = document.getElementById("eventList");
+    list.innerHTML = "";
+    if(state.events.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty-note";
+      empty.textContent = "No dates added yet — add your first important date above.";
+      list.appendChild(empty);
+      return;
+    }
+    var sorted = state.events.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+    var today = new Date(); today.setHours(0,0,0,0);
+    sorted.forEach(function(ev){
+      var row = document.createElement("div");
+      row.className = "event-row";
+
+      var cat = document.createElement("span");
+      cat.className = "event-cat " + (CAT_CLASS[ev.category] || "cat-other");
+      cat.textContent = CAT_LABEL[ev.category] || "Other";
+      row.appendChild(cat);
+
+      var name = document.createElement("span");
+      name.className = "event-name";
+      name.textContent = ev.name;
+      row.appendChild(name);
+
+      var dateSpan = document.createElement("span");
+      dateSpan.className = "event-date";
+      var d = new Date(ev.date + "T00:00:00");
+      dateSpan.textContent = isNaN(d) ? ev.date : d.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+      row.appendChild(dateSpan);
+
+      var cd = document.createElement("span");
+      cd.className = "event-countdown";
+      if(!isNaN(d)){
+        var diffDays = Math.round((d - today) / 86400000);
+        if(diffDays > 0){ cd.textContent = "in " + diffDays + "d"; }
+        else if(diffDays === 0){ cd.textContent = "TODAY"; }
+        else { cd.textContent = Math.abs(diffDays) + "d ago"; cd.classList.add("past"); }
+      }
+      row.appendChild(cd);
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "btn small ghost";
+      del.textContent = "✕";
+      del.setAttribute("aria-label", "Remove event");
+      del.addEventListener("click", function(){
+        state.events = state.events.filter(function(e){ return e.id !== ev.id; });
+        saveState(); renderEvents();
+      });
+      row.appendChild(del);
+
+      list.appendChild(row);
+    });
+  }
+
+  function bindAddEvent(){
+    document.getElementById("addEventBtn").addEventListener("click", function(){
+      var nameEl = document.getElementById("eventName");
+      var catEl = document.getElementById("eventCategory");
+      var dateEl = document.getElementById("eventDate");
+      if(!nameEl.value.trim() || !dateEl.value){
+        nameEl.style.borderColor = "var(--danger)";
+        dateEl.style.borderColor = "var(--danger)";
+        setTimeout(function(){ nameEl.style.borderColor=""; dateEl.style.borderColor=""; }, 1200);
+        return;
+      }
+      state.events.push({ id:"e"+Date.now()+Math.random().toString(16).slice(2), name:nameEl.value.trim(), category:catEl.value, date:dateEl.value });
+      nameEl.value = ""; dateEl.value = "";
+      saveState(); renderEvents();
+    });
+  }
+
+  /* ---------------- progress + badges ---------------- */
+  function updateProgressUI(){
+    var order = ["start","career","flight","destination","calendar","commander"];
+    var doneCount = ["career","flight","destination","calendar"].filter(function(k){ return state.progress[k]; }).length;
+    var allDone = doneCount === 4;
+    order.forEach(function(nodeKey, i){
+      var node = document.querySelector('[data-node="' + nodeKey + '"]');
+      if(!node) return;
+      node.classList.remove("done","current");
+      var isDone = (nodeKey === "start") || (nodeKey === "commander" ? allDone : state.progress[nodeKey]);
+      if(isDone) node.classList.add("done");
+    });
+    var phaseOrder = ["career","flight","destination","calendar"];
+    var currentKey = phaseOrder.find(function(k){ return !state.progress[k]; });
+    if(currentKey){
+      var cur = document.querySelector('[data-node="' + currentKey + '"]');
+      if(cur) cur.classList.add("current");
+    } else {
+      var cmd = document.querySelector('[data-node="commander"]');
+      if(cmd) cmd.classList.add("current");
+    }
+
+    ["career","flight","destination","calendar"].forEach(function(k){
+      var badge = document.querySelector('.badge-item[data-badge="' + k + '"]');
+      if(badge) badge.classList.toggle("earned", !!state.progress[k]);
+      var note = document.getElementById("note-" + k);
+      var btn = document.querySelector('[data-complete="' + k + '"]');
+      if(note) note.textContent = state.progress[k] ? "✅ Badge earned — great work, astronaut!" : "";
+      if(btn) btn.classList.toggle("done", !!state.progress[k]);
+      if(btn) btn.textContent = state.progress[k] ? "✅ Complete (click to reopen)" : btn.textContent.replace("✅ Complete (click to reopen)", "Mark " + labelFor(k) + " Complete");
+    });
+    var cmdBadge = document.querySelector('.badge-item[data-badge="commander"]');
+    if(cmdBadge) cmdBadge.classList.toggle("earned", allDone);
+  }
+  function labelFor(k){
+    return { career:"Career Scan", flight:"Flight Plan", destination:"Destination Search", calendar:"Countdown Calendar" }[k] || k;
+  }
+
+  function bindCompleteButtons(){
+    document.querySelectorAll("[data-complete]").forEach(function(btn){
+      var key = btn.getAttribute("data-complete");
+      btn.addEventListener("click", function(){
+        state.progress[key] = !state.progress[key];
+        saveState(); updateProgressUI();
+      });
+    });
+  }
+
+  /* ---------------- misc ---------------- */
+  function setStardate(){
+    var el = document.getElementById("stardate");
+    if(!el) return;
+    var now = new Date();
+    el.textContent = "MISSION LOG DATE: " + now.toLocaleDateString(undefined, {weekday:"long", year:"numeric", month:"long", day:"numeric"});
+  }
+
+  function bindPrintReset(){
+    document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+    var resetBtn = document.getElementById("resetBtn");
+    var armed = false;
+    resetBtn.addEventListener("click", function(){
+      if(!armed){
+        armed = true;
+        resetBtn.textContent = "Click again to confirm reset";
+        setTimeout(function(){ armed = false; resetBtn.textContent = "Reset Mission"; }, 3000);
+        return;
+      }
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      state = defaultState();
+      boot(true);
+      armed = false;
+      resetBtn.textContent = "Reset Mission";
+    });
+  }
+
+  function boot(skipLoad){
+    if(!skipLoad) loadState();
+    setStardate();
+    bindSimpleFields();
+    bindChips();
+    renderDestinations();
+    renderEvents();
+    bindAddEvent();
+    bindCompleteButtons();
+    updateProgressUI();
+    if(!document.getElementById("printBtn").dataset.bound){
+      bindPrintReset();
+      document.getElementById("printBtn").dataset.bound = "1";
+    }
+    if(!document.getElementById("addDestBtn").dataset.bound){
+      document.getElementById("addDestBtn").addEventListener("click", function(){
+        state.destinations.push(blankDestination());
+        saveState(); renderDestinations();
+      });
+      document.getElementById("addDestBtn").dataset.bound = "1";
+    }
+  }
+
+  boot(false);
+})();
+</script>
+</body>
+</html>
